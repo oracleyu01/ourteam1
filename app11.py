@@ -1,7 +1,6 @@
 import streamlit as st
 import tempfile
 import cv2
-import torch
 from ultralytics import YOLO
 from PIL import Image
 from moviepy.editor import VideoFileClip
