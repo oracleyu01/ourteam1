@@ -22,14 +22,14 @@ with st.container():
 
     with col2:
         st.header("사물 검출 결과 영상")
-        # 사물 검출 결과가 나타날 자리 확보 및 회색 박스 스타일 추가
+        # 사물 검출 결과가 나타날 자리 확보 및 고정 높이 회색 박스 스타일 추가
         result_placeholder = st.empty()
         if "processed_video" in st.session_state and st.session_state["processed_video"] is not None:
             result_placeholder.video(st.session_state["processed_video"])
         else:
             result_placeholder.markdown(
                 """
-                <div style='width:100%; height:100%; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px; min-height: 300px;'>
+                <div style='width:100%; height:400px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>
                     <p style='color:#888;'>여기에 사물 검출 결과가 표시됩니다.</p>
                 </div>
                 """,
@@ -40,10 +40,9 @@ with st.container():
 if st.button("사물 검출 실행"):
     if uploaded_file is not None:
         # 여기에 사물 검출을 수행하는 코드를 추가하고, 결과를 st.session_state["processed_video"]에 저장
-        # 임시로 원본 파일을 사용하지 않고, 결과가 있을 때만 표시하도록 설정
         st.session_state["processed_video"] = None  # 실제 결과 영상으로 바꿔야 함
         result_placeholder.markdown(
-            "<div style='width:100%; height:100%; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px; min-height: 300px;'>"
+            "<div style='width:100%; height:400px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>"
             "<p style='color:#888;'>사물 검출 결과 영상이 여기에 표시됩니다.</p>"
             "</div>",
             unsafe_allow_html=True,
