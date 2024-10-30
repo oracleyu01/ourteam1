@@ -2,7 +2,6 @@ import streamlit as st
 from ultralytics import YOLO
 import tempfile
 import cv2
-import os
 
 # 전체 레이아웃을 넓게 설정
 st.set_page_config(layout="wide")
@@ -10,12 +9,17 @@ st.set_page_config(layout="wide")
 # 제목 설정
 st.title("비디오 사물 검출 앱")
 
-# 파일 업로드 버튼을 상단으로 이동
-uploaded_file = st.file_uploader("비디오 파일을 업로드하세요", type=["mp4", "mov", "avi"])
+# 모델 파일 업로드
+model_file = st.file_uploader("모델 파일을 업로드하세요", type=["pt"])
+if model_file:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pt") as temp_model_file:
+        temp_model_file.write(model_file.read())
+        model_path = temp_model_file.name
+    model = YOLO(model_path)
+    st.success("모델이 성공적으로 로드되었습니다.")
 
-# YOLO 모델 불러오기
-model_path = 'hitter_trained_model.pt'  # 첨부된 모델 파일 경로
-model = YOLO(model_path)
+# 비디오 파일 업로드
+uploaded_file = st.file_uploader("비디오 파일을 업로드하세요", type=["mp4", "mov", "avi"])
 
 # 전체 레이아웃을 컨테이너로 감싸기
 with st.container():
@@ -67,54 +71,51 @@ st.markdown(
 )
 
 # 사물 검출 버튼 클릭 이벤트 처리
-if st.button("사물 검출 실행"):
-    if uploaded_file is not None:
-        # 임시 파일 생성
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_output:
-            output_path = temp_output.name
+if st.button("사물 검출 실행") and uploaded_file and model_file:
+    # 비디오 처리 시작
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_output:
+        output_path = temp_output.name
 
-        # 업로드된 파일을 임시 파일로 저장
-        with tempfile.NamedTemporaryFile(delete=False) as temp_input:
-            temp_input.write(uploaded_file.read())
-            temp_input_path = temp_input.name
+    # 업로드된 파일을 임시 파일로 저장
+    with tempfile.NamedTemporaryFile(delete=False) as temp_input:
+        temp_input.write(uploaded_file.read())
+        temp_input_path = temp_input.name
 
-        # 비디오 캡처 및 YOLO 추론
-        cap = cv2.VideoCapture(temp_input_path)
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+    # 비디오 캡처 및 YOLO 추론
+    cap = cv2.VideoCapture(temp_input_path)
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
-        frame_count = 0
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
+    frame_count = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-            # YOLO 모델로 예측 수행
-            results = model(frame)
-            detections = results[0].boxes if len(results) > 0 else []
+        # YOLO 모델로 예측 수행
+        results = model(frame)
+        detections = results[0].boxes if len(results) > 0 else []
 
-            # 검출된 객체가 있을 경우, 박스를 그립니다.
-            for box in detections:
-                x1, y1, x2, y2 = map(int, box.xyxy[0])  # 좌표를 정수로 변환
-                confidence = box.conf[0]
-                label = f"{box.label} {confidence:.2f}"
-                
-                # 박스 그리기 및 라벨 표시
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        # 검출된 객체가 있을 경우, 박스를 그립니다.
+        for box in detections:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])  # 좌표를 정수로 변환
+            confidence = box.conf[0]
+            label = f"{box.label} {confidence:.2f}"
             
-            out.write(frame)  # 처리된 프레임 저장
-            frame_count += 1
+            # 박스 그리기 및 라벨 표시
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        
+        out.write(frame)  # 처리된 프레임 저장
+        frame_count += 1
 
-        cap.release()
-        out.release()
+    cap.release()
+    out.release()
 
-        # 결과 비디오를 st.session_state에 저장하여 스트림릿에 표시
-        st.session_state["processed_video"] = output_path
-        result_placeholder.video(output_path)
-        st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
-    else:
-        st.warning("사물 검출을 실행하려면 비디오 파일을 업로드하세요.")
+    # 결과 비디오를 st.session_state에 저장하여 스트림릿에 표시
+    st.session_state["processed_video"] = output_path
+    result_placeholder.video(output_path)
+    st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
