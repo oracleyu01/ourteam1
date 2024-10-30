@@ -110,8 +110,8 @@ if st.button("질문하기"):
 # 대화 이력 표시 (챗봇 응답에 이미지 아이콘 추가)
 for message in st.session_state.history:
     st.write(f"**사용자**: {message['user']}")
-    st.markdown(
-        f'<img src="data:image/png;base64,{st.image("mini.png", width=30).data}" style="display:inline-block; vertical-align: middle; margin-right: 10px;">'
-        f'**챗봇**: {message["bot"]}',
-        unsafe_allow_html=True
-    )
+    col1, col2 = st.columns([0.1, 0.9])
+    with col1:
+        st.image("mini.png", width=30)  # 챗봇 아이콘
+    with col2:
+        st.write(message['bot'])
