@@ -97,3 +97,12 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     st.session_state["processed_video"] = output_path
     result_placeholder.video(output_path)
     st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
+
+    # 다운로드 링크 제공
+    with open(output_path, "rb") as file:
+        st.download_button(
+            label="결과 영상 다운로드",
+            data=file,
+            file_name="detected_video.avi",
+            mime="video/avi"
+        )
