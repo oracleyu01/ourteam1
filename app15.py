@@ -36,10 +36,11 @@ with st.container():
                 unsafe_allow_html=True,
             )
 
-# 커스텀 버튼 스타일 설정
-button_style = """
+# 버튼 스타일 설정
+st.markdown(
+    """
     <style>
-    .custom-button {
+    .stButton > button {
         background-color: #4d4d4d;  /* 진한 회색 */
         color: #ffffff;             /* 흰색 텍스트 */
         font-weight: bold;          /* 굵은 글씨 */
@@ -50,30 +51,21 @@ button_style = """
         cursor: pointer;
         transition: background-color 0.3s;
     }
-    .custom-button:hover {
+    .stButton > button:hover {
         background-color: #333333;  /* 호버 시 더 진한 회색 */
     }
     </style>
-    <button class="custom-button" onclick="executeDetection()">사물 검출 실행</button>
-    <script>
-    function executeDetection() {
-        const hiddenButton = document.querySelector('button[data-testid="hidden_button"]');
-        hiddenButton.click();
-    }
-    </script>
-"""
+    """,
+    unsafe_allow_html=True
+)
 
-# 버튼을 표시하고 숨겨진 Streamlit 버튼을 통해 클릭 이벤트 처리
-st.markdown(button_style, unsafe_allow_html=True)
-st.button("사물 검출 실행", key="hidden_button")  # 숨겨진 버튼
-
-# 사물 검출 버튼 클릭 이벤트 처리
-if st.session_state.get("hidden_button"):
+# 사물 검출 버튼 추가 및 클릭 이벤트 처리
+if st.button("사물 검출 실행"):
     if uploaded_file is not None:
         # 여기에 사물 검출을 수행하는 코드를 추가하고, 결과를 st.session_state["processed_video"]에 저장
         st.session_state["processed_video"] = None  # 실제 결과 영상으로 바꿔야 함
         result_placeholder.markdown(
-            "<div style='width:100%; height:500px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>"
+            "<div style='width:100%; height:620px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>"
             "<p style='color:#888;'>사물 검출 결과 영상이 여기에 표시됩니다.</p>"
             "</div>",
             unsafe_allow_html=True,
