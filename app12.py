@@ -58,8 +58,10 @@ st.markdown("""
         background-color: #0e1117;
         color: #ffffff;
     }
-    .css-6qob1r.e1fqkh3o3 { /* 사이드바 전체 배경 */
+    /* 사이드바 전체 배경 */
+    div[data-testid="stSidebar"] {
         background-color: #0e1117;
+        color: #ffffff;
     }
     /* 텍스트 색상 */
     .css-1kyxreq, .css-18ni7ap, .css-1d391kg, .css-1v3fvcr {
@@ -80,7 +82,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 사이드바 설정
-st.sidebar.image("image.png", width=250)
+st.sidebar.image("image.png", width=350)
 st.sidebar.title("Streamly Streamlit Assistant")
 st.sidebar.radio("모드 선택:", ["최신 업데이트", "Streamly와 대화"])
 st.sidebar.checkbox("기본 상호작용 보기", value=True)
