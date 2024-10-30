@@ -93,20 +93,25 @@ st.sidebar.image("image2.png", use_column_width=True)  # 사이드바 하단에 
 # 메인 챗봇 인터페이스
 st.title("Streamly 식당 챗봇")
 
-# 대화 이력 표시
+# 안내 문구와 챗봇 이미지 한 줄에 배치
+col1, col2 = st.columns([0.1, 0.9])
+with col1:
+    st.image("mini.png", width=30)  # 챗봇 이미지
+with col2:
+    st.write("식당에 대해 궁금한 점을 물어보세요! 예: '영업시간이 어떻게 되나요?'")
+
+user_input = st.text_input("질문을 입력하세요...", "")
+
+if st.button("질문하기"):
+    if user_input:
+        get_response(user_input)
+        user_input = ""  # 입력 초기화
+
+# 대화 이력 표시 (챗봇 응답에 이미지 아이콘 추가)
 for message in st.session_state.history:
     st.write(f"**사용자**: {message['user']}")
-    col1, col2 = st.columns([0.1, 0.9])
-    with col1:
-        st.image("mini.png", width=30)  # 챗봇 아이콘
-    with col2:
-        st.write(message['bot'])
-
-# 하단 입력창을 고정
-placeholder = st.empty()
-with placeholder.container():
-    user_input = st.text_input("질문을 입력하세요...", key="text_input")
-    if st.button("질문하기", key="button"):
-        if user_input:
-            get_response(user_input)
-            placeholder.empty()  # 입력창 리셋
+    st.markdown(
+        f'<img src="data:image/png;base64,{st.image("mini.png", width=30).data}" style="display:inline-block; vertical-align: middle; margin-right: 10px;">'
+        f'**챗봇**: {message["bot"]}',
+        unsafe_allow_html=True
+    )
