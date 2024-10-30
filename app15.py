@@ -103,7 +103,10 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         for box in detections:
             x1, y1, x2, y2 = map(int, box.xyxy[0])  # 좌표를 정수로 변환
             confidence = box.conf[0]
-            label = f"{box.label} {confidence:.2f}"
+            class_id = int(box.cls[0])
+            class_name = model.names[class_id]  # 클래스 이름 가져오기
+            
+            label = f"{class_name} {confidence:.2f}"
             
             # 박스 그리기 및 라벨 표시
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
