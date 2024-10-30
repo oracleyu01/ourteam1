@@ -82,11 +82,10 @@ if uploaded_file is not None:
     cap.release()
     out.release()
 
-    # `ffmpeg` 경로를 명시하여 비디오 파일을 다시 인코딩
-    ffmpeg_path = '/usr/bin/ffmpeg'  # ffmpeg 설치 경로 확인 후 수정
+    # `ffmpeg`를 이용해 비디오를 다시 인코딩
     encoded_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
     try:
-        ffmpeg.input(output_temp_file.name).output(encoded_temp_file.name, codec='libx264', pix_fmt='yuv420p').run(overwrite_output=True, executable=ffmpeg_path)
+        ffmpeg.input(output_temp_file.name).output(encoded_temp_file.name, codec='libx264', pix_fmt='yuv420p').run(overwrite_output=True)
     except Exception as e:
         st.error(f"Error occurred during encoding: {e}")
 
