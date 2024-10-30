@@ -4,6 +4,7 @@ import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
 import shutil
+from io import BytesIO
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="Sophisticated Batting Swing Detection", page_icon="🎨")
@@ -20,14 +21,17 @@ st.markdown(
 
 # 모나리자 이미지 표시
 st.markdown("<h4 style='text-align: center;'>Sample Artwork</h4>", unsafe_allow_html=True)
-monalisa_image = Image.open("monariza.png")  # 모나리자 이미지 경로를 실제 파일 경로로 수정하세요
-st.image(monalisa_image, caption="Mona Lisa (by Leonardo da Vinci)", use_column_width=True)
+try:
+    monalisa_image = Image.open("monariza.png")  # 모나리자 이미지 경로를 확인하세요
+    st.image(monalisa_image, caption="Mona Lisa (by Leonardo da Vinci)", use_column_width=True)
+except FileNotFoundError:
+    st.error("모나리자 이미지 파일을 찾을 수 없습니다. 파일 경로를 확인하세요.")
 
 # YOLO 모델 로드
 model = YOLO('hitter_trained_model.pt')
 
 # 클래스 이름 설정
-class_names = ["geonchang", "other_class"]  # 수정 가능한 클래스 이름
+class_names = ["geonchang", "other_class"]
 
 # Sidebar 설정
 st.sidebar.header("Settings ⚙️")
@@ -85,7 +89,7 @@ if uploaded_file is not None:
     # 비디오를 읽고 Streamlit에 표시
     with open(output_temp_file.name, 'rb') as f:
         video_bytes = f.read()
-    st.video(video_bytes)
+    st.video(BytesIO(video_bytes))  # 수정된 코드
 
     # 완료 메시지
     st.success("🎉 검출이 완료되었습니다!") 
