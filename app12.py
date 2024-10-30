@@ -59,16 +59,16 @@ st.markdown("""
         color: #ffffff;
     }
     /* 사이드바 전체 배경 강제 변경 */
-    div[data-testid="stSidebar"] {
+    [data-testid="stSidebar"] {
         background-color: #0e1117 !important;
         color: #ffffff !important;
     }
     /* 사이드바 내부 텍스트 색상 */
-    div[data-testid="stSidebar"] .css-1v3fvcr,
-    div[data-testid="stSidebar"] .css-1d391kg,
-    div[data-testid="stSidebar"] .css-18ni7ap,
-    div[data-testid="stSidebar"] .css-1kyxreq,
-    div[data-testid="stSidebar"] .css-1xarl3l {
+    [data-testid="stSidebar"] .css-1v3fvcr,
+    [data-testid="stSidebar"] .css-1d391kg,
+    [data-testid="stSidebar"] .css-18ni7ap,
+    [data-testid="stSidebar"] .css-1kyxreq,
+    [data-testid="stSidebar"] .css-1xarl3l {
         color: #ffffff !important;
     }
     /* 버튼 스타일 */
