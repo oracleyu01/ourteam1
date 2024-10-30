@@ -53,12 +53,17 @@ st.set_page_config(page_title="Streamly 식당 챗봇", page_icon="🤖", layout
 # 다크 테마 CSS
 st.markdown("""
     <style>
-    /* 전체 페이지와 사이드바를 다크 모드로 설정 */
+    /* 전체 페이지와 헤더, 사이드바를 다크 모드로 설정 */
     html, body, .stApp {
         background-color: #0e1117 !important;
         color: #ffffff !important;
     }
-    /* 사이드바 전체 배경 강제 변경 */
+    /* 상단 헤더와 최상위 root 스타일 */
+    header, [data-testid="stHeader"], .stApp > div:first-child {
+        background-color: #0e1117 !important;
+        color: #ffffff !important;
+    }
+    /* 사이드바 배경 강제 변경 */
     section[data-testid="stSidebar"] {
         background-color: #0e1117 !important;
         color: #ffffff !important;
@@ -90,7 +95,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 사이드바 설정
-st.sidebar.image("image.png", width=150)
+st.sidebar.image("/mnt/data/image.png", width=150)
 st.sidebar.title("Streamly Streamlit Assistant")
 st.sidebar.radio("모드 선택:", ["최신 업데이트", "Streamly와 대화"])
 st.sidebar.checkbox("기본 상호작용 보기", value=True)
