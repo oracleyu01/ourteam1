@@ -27,73 +27,79 @@ answers = [
     "맛있는 한식당은 강남 국기원 사거리 삼원빌딩 1층에 있습니다."
 ]
 
-# 질문 임베딩과 답변 데이터프레임 생성
+# 질문 임베딩과 데이터프레임 생성
 question_embeddings = encoder.encode(questions)
 df = pd.DataFrame({'question': questions, '챗봇': answers, 'embedding': list(question_embeddings)})
 
-# 대화 이력을 저장하기 위한 Streamlit 상태 설정
+# 대화 이력을 저장하기 위한 상태 설정
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# 챗봇 함수 정의
+# 챗봇 응답 함수 정의
 def get_response(user_input):
     # 사용자 입력 임베딩
     embedding = encoder.encode(user_input)
     
-    # 유사도 계산하여 가장 유사한 응답 찾기
+    # 유사도 계산 후 가장 유사한 답변 찾기
     df['distance'] = df['embedding'].map(lambda x: cosine_similarity([embedding], [x]).squeeze())
     answer = df.loc[df['distance'].idxmax()]
 
     # 대화 이력에 추가
     st.session_state.history.append({"user": user_input, "bot": answer['챗봇']})
 
-# 페이지 설정 및 스타일 적용
-st.set_page_config(page_title="Streamly Restaurant Chatbot", page_icon="🤖", layout="wide")
+# 페이지 설정 및 다크 테마 스타일 적용
+st.set_page_config(page_title="Streamly 식당 챗봇", page_icon="🤖", layout="wide")
+
+# 다크 테마 CSS
 st.markdown("""
     <style>
-    .css-18e3th9 {
-        background-color: #0e1117;
-    }
-    .css-1y4p8pa {
-        background-color: #0e1117;
-    }
-    .css-1kyxreq {
+    body, .stApp {
         background-color: #0e1117;
         color: #d1d5db;
     }
-    .css-18ni7ap {
+    .css-1kyxreq, .css-18ni7ap, .css-1d391kg {
         color: #d1d5db;
     }
-    .css-1d391kg {
+    .sidebar .sidebar-content {
+        background-color: #0e1117;
+        color: #d1d5db;
+    }
+    .stButton > button {
+        color: #ffffff;
+        background-color: #1f2937;
+        border-radius: 8px;
+    }
+    .stTextInput > div > div > input {
+        background-color: #1f2937;
         color: #d1d5db;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Sidebar 설정
-st.sidebar.image("image.png", width=150)
+# 사이드바 설정
+st.sidebar.image("/mnt/data/image.png", width=150)
 st.sidebar.title("Streamly Streamlit Assistant")
-st.sidebar.radio("Select Mode:", ["Latest Updates", "Chat with Streamly"])
-st.sidebar.checkbox("Show Basic Interactions", value=True)
+st.sidebar.radio("모드 선택:", ["최신 업데이트", "Streamly와 대화"])
+st.sidebar.checkbox("기본 상호작용 보기", value=True)
 st.sidebar.write("""
-    **Basic Interactions**  
-    - **Ask About Streamlit**: Type your questions about Streamlit's latest updates, features, or issues.  
-    - **Search for Code**: Use keywords like 'code example', 'syntax', or 'how-to' to get relevant code snippets.  
-    - **Navigate Updates**: Switch to 'Updates' mode to browse the latest Streamlit updates in detail.
+    **기본 상호작용**  
+    - **Streamlit에 대해 묻기**: Streamlit의 최신 업데이트, 기능 또는 이슈에 대해 질문할 수 있습니다.  
+    - **코드 검색**: '코드 예제', '구문', '사용 방법' 등의 키워드를 입력하여 관련 코드 스니펫을 찾을 수 있습니다.  
+    - **업데이트 탐색**: '업데이트' 모드로 전환하여 최신 Streamlit 업데이트를 자세히 확인하세요.
 """)
 
-# Main chatbot interface
-st.title("Streamly Restaurant Chatbot")
-st.write("Welcome to the Restaurant Chatbot! Feel free to ask anything about the restaurant. For example, 'What are the operating hours?'")
+# 메인 챗봇 인터페이스
+st.title("Streamly 식당 챗봇")
+st.write("식당에 대해 궁금한 점을 물어보세요! 예: '영업시간이 어떻게 되나요?'")
 
-user_input = st.text_input("Type your question here...", "")
+user_input = st.text_input("질문을 입력하세요...", "")
 
-if st.button("Ask"):
+if st.button("질문하기"):
     if user_input:
         get_response(user_input)
         user_input = ""  # 입력 초기화
 
 # 대화 이력 표시
 for message in st.session_state.history:
-    st.write(f"**User**: {message['user']}")
-    st.write(f"**Chatbot**: {message['bot']}")
+    st.write(f"**사용자**: {message['user']}")
+    st.write(f"**챗봇**: {message['bot']}")
