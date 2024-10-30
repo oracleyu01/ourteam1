@@ -3,6 +3,7 @@ import tempfile
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
+import ffmpeg
 import shutil
 from io import BytesIO
 
@@ -86,10 +87,14 @@ if uploaded_file is not None:
     cap.release()
     out.release()
 
-    # 비디오를 읽고 Streamlit에 표시
-    with open(output_temp_file.name, 'rb') as f:
+    # ffmpeg를 사용하여 비디오 파일을 다시 인코딩
+    encoded_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+    ffmpeg.input(output_temp_file.name).output(encoded_temp_file.name, codec='libx264', pix_fmt='yuv420p').run(overwrite_output=True)
+    
+    # Streamlit에 결과 동영상 표시
+    with open(encoded_temp_file.name, 'rb') as f:
         video_bytes = f.read()
-    st.video(BytesIO(video_bytes))  # 수정된 코드
+    st.video(BytesIO(video_bytes))
 
     # 완료 메시지
     st.success("🎉 검출이 완료되었습니다!") 
