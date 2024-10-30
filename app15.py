@@ -117,6 +117,12 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     cap.release()
     out.release()
 
+    # 파일 크기와 존재 여부 확인
+    if os.path.exists(output_path):
+        st.write(f"Output video saved at {output_path}, size: {os.path.getsize(output_path)} bytes")
+    else:
+        st.error("Output video file was not created successfully.")
+
     # 결과 비디오를 st.session_state에 저장하여 스트림릿에 표시
     st.session_state["processed_video"] = output_path
     result_placeholder.video(output_path)
