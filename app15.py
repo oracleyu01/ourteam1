@@ -27,10 +27,13 @@ with st.container():
         if "processed_video" in st.session_state and st.session_state["processed_video"] is not None:
             result_placeholder.video(st.session_state["processed_video"])
         else:
+            # 원본 영상 크기와 비슷하게 회색 박스 표시
             result_placeholder.markdown(
-                "<div style='border: 2px solid #d3d3d3; padding: 20px; text-align: center; color: #888;'>"
-                "여기에 사물 검출 결과가 표시됩니다."
-                "</div>",
+                """
+                <div style='width:100%; height:300px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>
+                    <p style='color:#888;'>여기에 사물 검출 결과가 표시됩니다.</p>
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
 
@@ -38,14 +41,11 @@ with st.container():
 if st.button("사물 검출 실행"):
     if uploaded_file is not None:
         # 여기에 사물 검출을 수행하는 코드를 추가하고, 결과를 st.session_state["processed_video"]에 저장
-        # 예를 들어, 사물 검출 결과 영상을 processed_video_path에 저장했다고 가정하면,
-        # st.session_state["processed_video"] = processed_video_path
-
         # 임시로 원본 파일을 사용하지 않고, 결과가 있을 때만 표시하도록 설정
         st.session_state["processed_video"] = None  # 실제 결과 영상으로 바꿔야 함
         result_placeholder.markdown(
-            "<div style='border: 2px solid #d3d3d3; padding: 20px; text-align: center; color: #888;'>"
-            "사물 검출 결과 영상이 여기에 표시됩니다."
+            "<div style='width:100%; height:300px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>"
+            "<p style='color:#888;'>사물 검출 결과 영상이 여기에 표시됩니다.</p>"
             "</div>",
             unsafe_allow_html=True,
         )
