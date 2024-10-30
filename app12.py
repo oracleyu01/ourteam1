@@ -77,7 +77,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 사이드바 설정
-st.sidebar.image("/mnt/data/image.png", width=150)
+st.sidebar.image("image.png", width=250)
 st.sidebar.title("Streamly Streamlit Assistant")
 st.sidebar.radio("모드 선택:", ["최신 업데이트", "Streamly와 대화"])
 st.sidebar.checkbox("기본 상호작용 보기", value=True)
