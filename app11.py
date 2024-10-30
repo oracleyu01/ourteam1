@@ -4,6 +4,7 @@ import cv2
 import torch
 from ultralytics import YOLO
 from PIL import Image
+from moviepy.editor import VideoFileClip
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="Sophisticated Batting Swing Detection", page_icon="🎨")
@@ -92,6 +93,10 @@ if uploaded_file is not None:
     # 리소스 해제
     cap.release()
     out.release()
+
+    # MoviePy를 사용하여 동영상을 웹 호환 형식으로 변환
+    output_clip = VideoFileClip(output_temp_file.name)
+    output_clip.write_videofile(output_temp_file.name, codec="libx264")
 
     # Streamlit에 결과 동영상 표시
     st.video(output_temp_file.name)
