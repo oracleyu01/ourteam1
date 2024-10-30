@@ -71,7 +71,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Sidebar 설정
-st.sidebar.image("/mnt/data/image.png", width=150)
+st.sidebar.image("image.png", width=150)
 st.sidebar.title("Streamly Streamlit Assistant")
 st.sidebar.radio("Select Mode:", ["Latest Updates", "Chat with Streamly"])
 st.sidebar.checkbox("Show Basic Interactions", value=True)
