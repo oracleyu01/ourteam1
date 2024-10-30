@@ -4,6 +4,7 @@ import tempfile
 import cv2
 import time
 import os
+import ffmpeg
 
 # 페이지 레이아웃 설정
 st.set_page_config(layout="wide")
@@ -93,8 +94,12 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     # 저장 후 대기 시간
     time.sleep(1)
 
+    # 비디오를 다시 인코딩하여 호환성 높이기
+    reencoded_output_path = output_path.replace(".mp4", "_reencoded.mp4")
+    ffmpeg.input(output_path).output(reencoded_output_path, vcodec='libx264', acodec='aac').run(overwrite_output=True)
+
     # 결과 비디오 다운로드 버튼
-    with open(output_path, "rb") as file:
+    with open(reencoded_output_path, "rb") as file:
         st.download_button(
             label="결과 영상 다운로드",
             data=file,
