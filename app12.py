@@ -53,25 +53,26 @@ st.set_page_config(page_title="Streamly 식당 챗봇", page_icon="🤖", layout
 # 다크 테마 CSS
 st.markdown("""
     <style>
-    /* 전체 페이지, 헤더, 사이드바를 다크 모드로 설정 */
+    /* 전체 페이지와 사이드바를 다크 모드로 설정 */
     html, body, .stApp {
-        background-color: #0e1117;
-        color: #ffffff;
-    }
-    header {
         background-color: #0e1117 !important;
+        color: #ffffff !important;
     }
-    /* 사이드바 전체 배경 */
-    div[data-testid="stSidebar"] {
+    /* 사이드바 전체 배경 강제 변경 */
+    section[data-testid="stSidebar"] {
         background-color: #0e1117 !important;
         color: #ffffff !important;
     }
     /* 사이드바 내부 텍스트 색상 */
-    div[data-testid="stSidebar"] .css-1v3fvcr,
-    div[data-testid="stSidebar"] .css-1d391kg,
-    div[data-testid="stSidebar"] .css-18ni7ap,
-    div[data-testid="stSidebar"] .css-1kyxreq,
-    div[data-testid="stSidebar"] .css-1xarl3l {
+    section[data-testid="stSidebar"] .css-1v3fvcr,
+    section[data-testid="stSidebar"] .css-1d391kg,
+    section[data-testid="stSidebar"] .css-18ni7ap,
+    section[data-testid="stSidebar"] .css-1kyxreq,
+    section[data-testid="stSidebar"] .css-1xarl3l {
+        color: #ffffff !important;
+    }
+    /* 라디오 버튼 및 체크박스 텍스트 색상 */
+    section[data-testid="stSidebar"] label {
         color: #ffffff !important;
     }
     /* 버튼 스타일 */
