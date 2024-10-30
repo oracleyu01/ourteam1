@@ -88,7 +88,7 @@ st.sidebar.write("""
     - **코드 검색**: '코드 예제', '구문', '사용 방법' 등의 키워드를 입력하여 관련 코드 스니펫을 찾을 수 있습니다.  
     - **업데이트 탐색**: '업데이트' 모드로 전환하여 최신 Streamlit 업데이트를 자세히 확인하세요.
 """)
-st.sidebar.image("/mnt/data/image2.png", use_column_width=True)  # 사이드바 하단에 이미지 추가
+st.sidebar.image("image2.png", use_column_width=True)  # 사이드바 하단에 이미지 추가
 
 # 메인 챗봇 인터페이스
 st.title("Streamly 식당 챗봇")
