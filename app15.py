@@ -3,6 +3,7 @@ from ultralytics import YOLO
 import tempfile
 import cv2
 import os
+import time
 
 # 전체 레이아웃을 넓게 설정
 st.set_page_config(layout="wide")
@@ -73,7 +74,7 @@ st.markdown(
 
 # 사물 검출 버튼 클릭 이벤트 처리
 if st.button("사물 검출 실행") and uploaded_file and model_file:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_output:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".avi") as temp_output:
         output_path = temp_output.name
 
     with tempfile.NamedTemporaryFile(delete=False) as temp_input:
@@ -81,7 +82,7 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         temp_input_path = temp_input.name
 
     cap = cv2.VideoCapture(temp_input_path)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 코덱을 'mp4v'로 설정
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')  # 코덱을 'XVID'로 설정하여 .avi 형식 사용
     fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -93,7 +94,7 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         if not ret:
             break
 
-        # YOLO 모델로 예측 수행 및 디버깅
+        # YOLO 모델로 예측 수행
         results = model(frame)
         detections = results[0].boxes if len(results) > 0 else []
 
@@ -117,13 +118,10 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     cap.release()
     out.release()
 
-    # 파일 크기와 존재 여부 확인
-    if os.path.exists(output_path):
-        st.write(f"Output video saved at {output_path}, size: {os.path.getsize(output_path)} bytes")
-    else:
-        st.error("Output video file was not created successfully.")
+    # 파일 저장 후 1초 대기
+    time.sleep(1)
 
-    # 결과 비디오를 st.session_state에 저장하여 스트림릿에 표시
+    # 비디오 파일 경로 직접 전달
     st.session_state["processed_video"] = output_path
     result_placeholder.video(output_path)
     st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
