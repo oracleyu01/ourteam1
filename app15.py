@@ -37,8 +37,8 @@ with st.container():
     with col2:
         st.header("사물 검출 결과 영상")
         result_placeholder = st.empty()
-        if "processed_video" in st.session_state and st.session_state["processed_video"] is not None:
-            result_placeholder.video(st.session_state["processed_video"])
+        if "uploaded_detected_video" in st.session_state:
+            result_placeholder.video(st.session_state["uploaded_detected_video"])
         else:
             result_placeholder.markdown(
                 """
@@ -93,12 +93,7 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     # 저장 후 대기 시간
     time.sleep(1)
 
-    # 결과 비디오를 세션 상태에 저장
-    st.session_state["processed_video"] = output_path
-    result_placeholder.video(output_path)
-    st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
-
-    # 다운로드 링크 제공
+    # 결과 비디오 다운로드 버튼
     with open(output_path, "rb") as file:
         st.download_button(
             label="결과 영상 다운로드",
@@ -106,3 +101,10 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
             file_name="detected_video.mp4",
             mime="video/mp4"
         )
+    st.success("사물 검출이 완료되었습니다. 결과 영상을 다운로드한 후 다시 업로드해보세요.")
+
+# 결과 비디오 다시 업로드하여 재생
+uploaded_detected_video = st.file_uploader("결과 영상을 다시 업로드하세요", type=["mp4"])
+if uploaded_detected_video:
+    st.session_state["uploaded_detected_video"] = uploaded_detected_video
+    st.video(uploaded_detected_video)
