@@ -53,40 +53,23 @@ st.set_page_config(page_title="Streamly 식당 챗봇", page_icon="🤖", layout
 # 다크 테마 CSS
 st.markdown("""
     <style>
-    /* 전체 페이지와 헤더, 사이드바를 다크 모드로 설정 */
     html, body, .stApp {
-        background-color: #0e1117 !important;
-        color: #ffffff !important;
+        background-color: #0e1117;
+        color: #ffffff;
     }
-    /* 상단 헤더와 최상위 root 스타일 */
     header, [data-testid="stHeader"], .stApp > div:first-child {
         background-color: #0e1117 !important;
         color: #ffffff !important;
     }
-    /* 사이드바 배경 강제 변경 */
     section[data-testid="stSidebar"] {
         background-color: #0e1117 !important;
         color: #ffffff !important;
     }
-    /* 사이드바 내부 텍스트 색상 */
-    section[data-testid="stSidebar"] .css-1v3fvcr,
-    section[data-testid="stSidebar"] .css-1d391kg,
-    section[data-testid="stSidebar"] .css-18ni7ap,
-    section[data-testid="stSidebar"] .css-1kyxreq,
-    section[data-testid="stSidebar"] .css-1xarl3l {
-        color: #ffffff !important;
-    }
-    /* 라디오 버튼 및 체크박스 텍스트 색상 */
-    section[data-testid="stSidebar"] label {
-        color: #ffffff !important;
-    }
-    /* 버튼 스타일 */
     .stButton > button {
         color: #ffffff;
         background-color: #1f2937;
         border-radius: 8px;
     }
-    /* 텍스트 입력 필드 스타일 */
     .stTextInput > div > div > input {
         background-color: #1f2937;
         color: #ffffff;
@@ -94,7 +77,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 사이드바 설정
+# 사이드바 설정 (상단과 하단에 이미지 추가)
 st.sidebar.image("image.png", use_column_width=True)
 st.sidebar.title("Streamly Streamlit Assistant")
 st.sidebar.radio("모드 선택:", ["최신 업데이트", "Streamly와 대화"])
@@ -105,6 +88,7 @@ st.sidebar.write("""
     - **코드 검색**: '코드 예제', '구문', '사용 방법' 등의 키워드를 입력하여 관련 코드 스니펫을 찾을 수 있습니다.  
     - **업데이트 탐색**: '업데이트' 모드로 전환하여 최신 Streamlit 업데이트를 자세히 확인하세요.
 """)
+st.sidebar.image("/mnt/data/image2.png", use_column_width=True)  # 사이드바 하단에 이미지 추가
 
 # 메인 챗봇 인터페이스
 st.title("Streamly 식당 챗봇")
@@ -117,7 +101,9 @@ if st.button("질문하기"):
         get_response(user_input)
         user_input = ""  # 입력 초기화
 
-# 대화 이력 표시
+# 대화 이력 표시 (챗봇 응답에 이미지 아이콘 추가)
 for message in st.session_state.history:
     st.write(f"**사용자**: {message['user']}")
-    st.write(f"**챗봇**: {message['bot']}")
+    st.write(f"**챗봇**: ")
+    st.image("/mnt/data/mini.png", width=30)  # 챗봇 아이콘
+    st.write(message['bot'])
