@@ -80,13 +80,13 @@ if st.button("사물 검출 실행"):
 
         # 비디오 캡처 및 YOLO 추론
         cap = cv2.VideoCapture(temp_input_path)
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')  # 코덱을 XVID로 변경
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
         fps = cap.get(cv2.CAP_PROP_FPS)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
-        frame_count = 0  # 디버깅용 프레임 카운트
+        frame_count = 0
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
@@ -94,14 +94,19 @@ if st.button("사물 검출 실행"):
 
             # YOLO 모델로 예측 수행
             results = model(frame)
-            if len(results) > 0:
-                annotated_frame = results[0].plot()  # 예측 결과가 표시된 프레임
-                out.write(annotated_frame)
-            else:
-                # 검출이 없을 경우 원본 프레임을 그대로 저장 (디버깅)
-                out.write(frame)
-                st.write(f"Frame {frame_count}: No detections")
+            detections = results[0].boxes if len(results) > 0 else []
+
+            # 검출된 객체가 있을 경우, 박스를 그립니다.
+            for box in detections:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])  # 좌표를 정수로 변환
+                confidence = box.conf[0]
+                label = f"{box.label} {confidence:.2f}"
+                
+                # 박스 그리기 및 라벨 표시
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             
+            out.write(frame)  # 처리된 프레임 저장
             frame_count += 1
 
         cap.release()
