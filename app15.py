@@ -3,6 +3,7 @@ from ultralytics import YOLO
 import tempfile
 import cv2
 import time
+import os
 
 # 페이지 레이아웃 설정
 st.set_page_config(layout="wide")
