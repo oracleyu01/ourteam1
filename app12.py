@@ -48,7 +48,7 @@ def get_response(user_input):
     st.session_state.history.append({"user": user_input, "bot": answer['챗봇']})
 
 # 페이지 설정 및 다크 테마 스타일 적용
-st.set_page_config(page_title="Streamly 식당 챗봇", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Streamly Restaurant Chatbot", page_icon="🤖", layout="wide")
 
 # 다크 테마 CSS
 st.markdown("""
@@ -80,36 +80,36 @@ st.markdown("""
 # 사이드바 설정 (상단과 하단에 이미지 추가)
 st.sidebar.image("image.png", use_column_width=True)
 st.sidebar.title("Streamly Streamlit Assistant")
-st.sidebar.radio("모드 선택:", ["최신 업데이트", "Streamly와 대화"])
-st.sidebar.checkbox("기본 상호작용 보기", value=True)
+st.sidebar.radio("Select Mode:", ["Latest Updates", "Chat with Streamly"])
+st.sidebar.checkbox("Show Basic Interactions", value=True)
 st.sidebar.write("""
-    **기본 상호작용**  
-    - **Streamlit에 대해 묻기**: Streamlit의 최신 업데이트, 기능 또는 이슈에 대해 질문할 수 있습니다.  
-    - **코드 검색**: '코드 예제', '구문', '사용 방법' 등의 키워드를 입력하여 관련 코드 스니펫을 찾을 수 있습니다.  
-    - **업데이트 탐색**: '업데이트' 모드로 전환하여 최신 Streamlit 업데이트를 자세히 확인하세요.
+    **Basic Interactions**  
+    - **Ask About Streamlit**: Ask about Streamlit's latest updates, features, or issues.  
+    - **Search for Code**: Enter keywords like 'code example', 'syntax', 'how-to' to find related code snippets.  
+    - **Navigate Updates**: Switch to 'Updates' mode to explore the latest Streamlit updates in detail.
 """)
 st.sidebar.image("image2.png", use_column_width=True)  # 사이드바 하단에 이미지 추가
 
 # 메인 챗봇 인터페이스
-st.title("Streamly 식당 챗봇")
+st.title("Streamly Restaurant Chatbot")
 
 # 안내 문구와 챗봇 이미지 한 줄에 배치
 col1, col2 = st.columns([0.1, 0.9])
 with col1:
     st.image("mini.png", width=30)  # 챗봇 이미지
 with col2:
-    st.write("식당에 대해 궁금한 점을 물어보세요! 예: '영업시간이 어떻게 되나요?'")
+    st.write("Ask me anything about the restaurant! For example: 'What are the operating hours?'")
 
-user_input = st.text_input("질문을 입력하세요...", "")
+user_input = st.text_input("Type your question here...", "")
 
-if st.button("질문하기"):
+if st.button("Ask"):
     if user_input:
         get_response(user_input)
         user_input = ""  # 입력 초기화
 
 # 대화 이력 표시 (챗봇 응답에 이미지 아이콘 추가)
 for message in st.session_state.history:
-    st.write(f"**사용자**: {message['user']}")
+    st.write(f"**User**: {message['user']}")
     col1, col2 = st.columns([0.1, 0.9])
     with col1:
         st.image("mini.png", width=30)  # 챗봇 아이콘
