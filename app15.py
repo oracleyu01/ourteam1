@@ -29,7 +29,7 @@ with st.container():
         else:
             result_placeholder.markdown(
                 """
-                <div style='width:100%; height:400px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>
+                <div style='width:100%; height:500px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>
                     <p style='color:#888;'>여기에 사물 검출 결과가 표시됩니다.</p>
                 </div>
                 """,
@@ -42,7 +42,7 @@ if st.button("사물 검출 실행"):
         # 여기에 사물 검출을 수행하는 코드를 추가하고, 결과를 st.session_state["processed_video"]에 저장
         st.session_state["processed_video"] = None  # 실제 결과 영상으로 바꿔야 함
         result_placeholder.markdown(
-            "<div style='width:100%; height:400px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>"
+            "<div style='width:100%; height:500px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>"
             "<p style='color:#888;'>사물 검출 결과 영상이 여기에 표시됩니다.</p>"
             "</div>",
             unsafe_allow_html=True,
