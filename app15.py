@@ -50,7 +50,7 @@ with st.container():
 
 # 사물 검출 버튼 클릭 이벤트 처리
 if st.button("사물 검출 실행") and uploaded_file and model_file:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_output:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".avi") as temp_output:
         output_path = temp_output.name
 
     with tempfile.NamedTemporaryFile(delete=False) as temp_input:
@@ -58,7 +58,7 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         temp_input_path = temp_input.name
 
     cap = cv2.VideoCapture(temp_input_path)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
     fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
