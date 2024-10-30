@@ -3,4 +3,4 @@ pandas
 streamlit
 opencv-python-headless
 ultralytics
-
+ffmpeg-python
