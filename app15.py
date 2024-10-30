@@ -81,7 +81,7 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         temp_input_path = temp_input.name
 
     cap = cv2.VideoCapture(temp_input_path)
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 코덱을 'mp4v'로 설정
     fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -109,10 +109,8 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             st.write(f"Frame {frame_count}: {len(detections)} detections")
         else:
-            # 검출 결과가 없을 때도 원본 프레임을 저장
             st.write(f"Frame {frame_count}: No detections - Original frame saved")
 
-        # 원본 또는 검출된 프레임을 그대로 저장
         out.write(frame)
         frame_count += 1
 
