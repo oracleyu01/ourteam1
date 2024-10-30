@@ -58,18 +58,18 @@ st.markdown("""
         background-color: #0e1117;
         color: #ffffff;
     }
-    /* 사이드바 전체 배경 */
+    /* 사이드바 전체 배경 강제 변경 */
     div[data-testid="stSidebar"] {
-        background-color: #0e1117;
-        color: #ffffff;
+        background-color: #0e1117 !important;
+        color: #ffffff !important;
     }
-    /* 사이드바 안의 각 요소 텍스트 색상 */
-    div[data-testid="stSidebar"] .css-1v3fvcr, 
-    div[data-testid="stSidebar"] .css-1d391kg, 
-    div[data-testid="stSidebar"] .css-18ni7ap, 
-    div[data-testid="stSidebar"] .css-1kyxreq, 
+    /* 사이드바 내부 텍스트 색상 */
+    div[data-testid="stSidebar"] .css-1v3fvcr,
+    div[data-testid="stSidebar"] .css-1d391kg,
+    div[data-testid="stSidebar"] .css-18ni7ap,
+    div[data-testid="stSidebar"] .css-1kyxreq,
     div[data-testid="stSidebar"] .css-1xarl3l {
-        color: #ffffff;
+        color: #ffffff !important;
     }
     /* 버튼 스타일 */
     .stButton > button {
