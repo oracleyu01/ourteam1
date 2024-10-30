@@ -29,43 +29,48 @@ with st.container():
         else:
             result_placeholder.markdown(
                 """
-                <div style='width:100%; height:500px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>
+                <div style='width:100%; height:620px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>
                     <p style='color:#888;'>여기에 사물 검출 결과가 표시됩니다.</p>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-# 버튼 스타일 설정
+# 커스텀 버튼 스타일 설정
 button_style = """
     <style>
     .custom-button {
-        display: inline-block;
+        background-color: #4d4d4d;  /* 진한 회색 */
+        color: #ffffff;             /* 흰색 텍스트 */
+        font-weight: bold;          /* 굵은 글씨 */
         padding: 12px 24px;
-        font-size: 18px;
-        font-weight: bold;
-        color: #ffffff;
-        background-color: #0073e6; /* 파란색 계열 */
+        font-size: 16px;
         border: none;
         border-radius: 8px;
         cursor: pointer;
         transition: background-color 0.3s;
-        text-align: center;
-        text-decoration: none;
     }
     .custom-button:hover {
-        background-color: #005bb5; /* 호버 시 어두운 파란색 */
+        background-color: #333333;  /* 호버 시 더 진한 회색 */
     }
     </style>
-    <a href="#" class="custom-button">사물 검출 실행</a>
+    <button class="custom-button" onclick="executeDetection()">사물 검출 실행</button>
+    <script>
+    function executeDetection() {
+        const hiddenButton = document.querySelector('button[data-testid="hidden_button"]');
+        hiddenButton.click();
+    }
+    </script>
 """
 
-# 버튼 표시
+# 버튼을 표시하고 숨겨진 Streamlit 버튼을 통해 클릭 이벤트 처리
 st.markdown(button_style, unsafe_allow_html=True)
+st.button("사물 검출 실행", key="hidden_button")  # 숨겨진 버튼
 
 # 사물 검출 버튼 클릭 이벤트 처리
-if st.button("사물 검출 실행", key="hidden_button"):  # 숨겨진 Streamlit 버튼
+if st.session_state.get("hidden_button"):
     if uploaded_file is not None:
+        # 여기에 사물 검출을 수행하는 코드를 추가하고, 결과를 st.session_state["processed_video"]에 저장
         st.session_state["processed_video"] = None  # 실제 결과 영상으로 바꿔야 함
         result_placeholder.markdown(
             "<div style='width:100%; height:500px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>"
