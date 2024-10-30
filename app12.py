@@ -3,10 +3,10 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# 임베딩 모델 로드
+# Load the embedding model
 encoder = SentenceTransformer('jhgan/ko-sroberta-multitask')
 
-# 식당 관련 질문과 답변 데이터
+# Restaurant-related questions and answers
 questions = [
     "영업시간이 어떻게 되나요?",
     "가격이 어떻게 되나요?",
@@ -27,48 +27,49 @@ answers = [
     "맛있는 한식당은 강남 국기원 사거리 삼원빌딩 1층에 있습니다."
 ]
 
-# 질문 임베딩과 데이터프레임 생성
+# Create embeddings and dataframe
 question_embeddings = encoder.encode(questions)
 df = pd.DataFrame({'question': questions, '챗봇': answers, 'embedding': list(question_embeddings)})
 
-# 대화 이력을 저장하기 위한 상태 설정
+# Initialize conversation history
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# 챗봇 응답 함수 정의
+# Define chatbot function
 def get_response(user_input):
-    # 사용자 입력 임베딩
+    # Embed user input
     embedding = encoder.encode(user_input)
     
-    # 유사도 계산 후 가장 유사한 답변 찾기
+    # Find the most similar answer
     df['distance'] = df['embedding'].map(lambda x: cosine_similarity([embedding], [x]).squeeze())
     answer = df.loc[df['distance'].idxmax()]
 
-    # 대화 이력에 추가
+    # Add to conversation history
     st.session_state.history.append({"user": user_input, "bot": answer['챗봇']})
 
-# 페이지 설정 및 다크 테마 스타일 적용
+# Set up the page configuration
 st.set_page_config(page_title="Streamly 식당 챗봇", page_icon="🤖", layout="wide")
 
-# 다크 테마 CSS
+# Dark theme styling
 st.markdown("""
     <style>
-    body, .stApp {
+    /* 전체 페이지 배경을 검정색으로 설정 */
+    .stApp {
         background-color: #0e1117;
         color: #d1d5db;
     }
-    .css-1kyxreq, .css-18ni7ap, .css-1d391kg {
-        color: #d1d5db;
-    }
-    .sidebar .sidebar-content {
+    /* 사이드바 배경 및 텍스트 스타일 */
+    .css-1d391kg, .css-1kyxreq, .css-18ni7ap, .sidebar .sidebar-content {
         background-color: #0e1117;
         color: #d1d5db;
     }
+    /* 버튼 스타일 */
     .stButton > button {
         color: #ffffff;
         background-color: #1f2937;
         border-radius: 8px;
     }
+    /* 텍스트 입력 필드 스타일 */
     .stTextInput > div > div > input {
         background-color: #1f2937;
         color: #d1d5db;
@@ -76,7 +77,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 사이드바 설정
+# Sidebar configuration
 st.sidebar.image("/mnt/data/image.png", width=150)
 st.sidebar.title("Streamly Streamlit Assistant")
 st.sidebar.radio("모드 선택:", ["최신 업데이트", "Streamly와 대화"])
@@ -88,7 +89,7 @@ st.sidebar.write("""
     - **업데이트 탐색**: '업데이트' 모드로 전환하여 최신 Streamlit 업데이트를 자세히 확인하세요.
 """)
 
-# 메인 챗봇 인터페이스
+# Main chatbot interface
 st.title("Streamly 식당 챗봇")
 st.write("식당에 대해 궁금한 점을 물어보세요! 예: '영업시간이 어떻게 되나요?'")
 
@@ -97,9 +98,9 @@ user_input = st.text_input("질문을 입력하세요...", "")
 if st.button("질문하기"):
     if user_input:
         get_response(user_input)
-        user_input = ""  # 입력 초기화
+        user_input = ""  # Clear input field
 
-# 대화 이력 표시
+# Display conversation history
 for message in st.session_state.history:
     st.write(f"**사용자**: {message['user']}")
     st.write(f"**챗봇**: {message['bot']}")
