@@ -3,6 +3,7 @@ import tempfile
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
+import shutil
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="Sophisticated Batting Swing Detection", page_icon="🎨")
@@ -38,8 +39,8 @@ if uploaded_file is not None:
     st.sidebar.success("파일 업로드 완료")
 
     # 임시 파일에 업로드된 동영상을 저장
-    with tempfile.NamedTemporaryFile(delete=False) as temp_video:
-        temp_video.write(uploaded_file.read())
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+        shutil.copyfileobj(uploaded_file, temp_video)
         temp_video_path = temp_video.name
 
     # 동영상 로드
@@ -81,8 +82,10 @@ if uploaded_file is not None:
     cap.release()
     out.release()
 
-    # Streamlit에 결과 동영상 표시
-    st.video(output_temp_file.name)
+    # 비디오를 읽고 Streamlit에 표시
+    with open(output_temp_file.name, 'rb') as f:
+        video_bytes = f.read()
+    st.video(video_bytes)
 
     # 완료 메시지
-    st.success("🎉 검출이 완료되었습니다!")
+    st.success("🎉 검출이 완료되었습니다!") 
