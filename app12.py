@@ -105,5 +105,5 @@ if st.button("질문하기"):
 for message in st.session_state.history:
     st.write(f"**사용자**: {message['user']}")
     st.write(f"**챗봇**: ")
-    st.image("/mnt/data/mini.png", width=30)  # 챗봇 아이콘
+    st.image("mini.png", width=30)  # 챗봇 아이콘
     st.write(message['bot'])
