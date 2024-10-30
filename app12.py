@@ -98,7 +98,7 @@ col1, col2 = st.columns([0.1, 0.9])
 with col1:
     st.image("mini.png", width=30)  # 챗봇 이미지
 with col2:
-    st.write("Ask me anything about the restaurant! For example: 'What are the operating hours?'")
+    st.write("식당에 대해 궁금한 점을 물어보세요! 예: '영업시간이 어떻게 되나요?")
 
 user_input = st.text_input("Type your question here...", "")
 
