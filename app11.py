@@ -1,9 +1,9 @@
+import streamlit as st
 import cv2
 import tempfile
-import streamlit as st
-from ultralytics import YOLO
 from PIL import Image
 import ffmpeg
+from ultralytics import YOLO
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="Sophisticated Batting Swing Detection", page_icon="🎨")
@@ -39,7 +39,7 @@ if uploaded_file is not None:
     st.sidebar.success("파일 업로드 완료")
 
     # 임시 파일에 업로드된 동영상을 저장
-    with tempfile.NamedTemporaryFile(delete=False) as temp_video:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
         temp_video.write(uploaded_file.read())
         temp_video_path = temp_video.name
 
@@ -50,7 +50,7 @@ if uploaded_file is not None:
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # 결과 동영상 저장
-    output_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+    output_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_temp_file.name, fourcc, fps, (frame_width, frame_height))
 
@@ -82,15 +82,18 @@ if uploaded_file is not None:
     cap.release()
     out.release()
 
-    # `ffmpeg`를 이용해 비디오를 다시 인코딩
-    encoded_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
-    try:
-        ffmpeg.input(output_temp_file.name).output(encoded_temp_file.name, codec='libx264', pix_fmt='yuv420p').run(overwrite_output=True)
-    except Exception as e:
-        st.error(f"Error occurred during encoding: {e}")
+    # ffmpeg-python을 사용해 동영상 포맷을 웹에서 재생 가능한 형태로 변환
+    processed_video_path = output_temp_file.name
+    converted_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+    (
+        ffmpeg
+        .input(processed_video_path)
+        .output(converted_video_path, vcodec="libx264", acodec="aac")
+        .run()
+    )
 
     # Streamlit에 결과 동영상 표시
-    st.video(encoded_temp_file.name)
+    st.video(converted_video_path)
 
     # 완료 메시지
     st.success("🎉 검출이 완료되었습니다!")
