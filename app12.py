@@ -54,12 +54,15 @@ st.set_page_config(page_title="Streamly 식당 챗봇", page_icon="🤖", layout
 st.markdown("""
     <style>
     /* 전체 페이지와 사이드바를 다크 모드로 설정 */
-    .stApp, .sidebar .sidebar-content {
+    .stApp {
         background-color: #0e1117;
         color: #ffffff;
     }
+    .css-6qob1r.e1fqkh3o3 { /* 사이드바 전체 배경 */
+        background-color: #0e1117;
+    }
     /* 텍스트 색상 */
-    .css-1kyxreq, .css-18ni7ap, .css-1d391kg {
+    .css-1kyxreq, .css-18ni7ap, .css-1d391kg, .css-1v3fvcr {
         color: #ffffff;
     }
     /* 버튼 스타일 */
