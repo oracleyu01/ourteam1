@@ -30,7 +30,6 @@ with st.container():
 
     with col2:
         st.header("사물 검출 결과 영상")
-        # 사물 검출 결과가 나타날 자리 확보 및 고정 높이 회색 박스 스타일 추가
         result_placeholder = st.empty()
         if "processed_video" in st.session_state and st.session_state["processed_video"] is not None:
             result_placeholder.video(st.session_state["processed_video"])
@@ -81,12 +80,13 @@ if st.button("사물 검출 실행"):
 
         # 비디오 캡처 및 YOLO 추론
         cap = cv2.VideoCapture(temp_input_path)
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')  # 코덱을 XVID로 변경
         fps = cap.get(cv2.CAP_PROP_FPS)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
+        frame_count = 0  # 디버깅용 프레임 카운트
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
@@ -94,10 +94,15 @@ if st.button("사물 검출 실행"):
 
             # YOLO 모델로 예측 수행
             results = model(frame)
-            annotated_frame = results[0].plot()  # 예측 결과가 표시된 프레임
-
-            # 결과 프레임을 비디오로 저장
-            out.write(annotated_frame)
+            if len(results) > 0:
+                annotated_frame = results[0].plot()  # 예측 결과가 표시된 프레임
+                out.write(annotated_frame)
+            else:
+                # 검출이 없을 경우 원본 프레임을 그대로 저장 (디버깅)
+                out.write(frame)
+                st.write(f"Frame {frame_count}: No detections")
+            
+            frame_count += 1
 
         cap.release()
         out.release()
