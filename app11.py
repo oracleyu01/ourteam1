@@ -1,9 +1,9 @@
 import streamlit as st
-import cv2
 import tempfile
-from PIL import Image
-import ffmpeg
+import cv2
+import torch
 from ultralytics import YOLO
+from PIL import Image
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="Sophisticated Batting Swing Detection", page_icon="🎨")
@@ -23,8 +23,19 @@ st.markdown("<h4 style='text-align: center;'>Sample Artwork</h4>", unsafe_allow_
 monalisa_image = Image.open("monariza.png")  # 모나리자 이미지 경로를 실제 파일 경로로 수정하세요
 st.image(monalisa_image, caption="Mona Lisa (by Leonardo da Vinci)", use_column_width=True)
 
-# YOLO 모델 로드
-model = YOLO('hitter_trained_model.pt')
+# 모델 로드 함수
+@st.cache_resource
+def load_model():
+    try:
+        model = YOLO('hitter_trained_model.pt')  # 모델 파일 경로를 확인하세요
+        return model
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
+
+model = load_model()
+if model is None:
+    st.stop()  # 모델이 없으면 앱 중지
 
 # 클래스 이름 설정
 class_names = ["geonchang", "other_class"]  # 수정 가능한 클래스 이름
@@ -50,7 +61,7 @@ if uploaded_file is not None:
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # 결과 동영상 저장
-    output_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+    output_temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_temp_file.name, fourcc, fps, (frame_width, frame_height))
 
@@ -82,18 +93,10 @@ if uploaded_file is not None:
     cap.release()
     out.release()
 
-    # ffmpeg-python을 사용해 동영상 포맷을 웹에서 재생 가능한 형태로 변환
-    processed_video_path = output_temp_file.name
-    converted_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
-    (
-        ffmpeg
-        .input(processed_video_path)
-        .output(converted_video_path, vcodec="libx264", acodec="aac")
-        .run()
-    )
-
     # Streamlit에 결과 동영상 표시
-    st.video(converted_video_path)
+    st.video(output_temp_file.name)
 
     # 완료 메시지
     st.success("🎉 검출이 완료되었습니다!")
+else:
+    st.write("동영상 파일을 업로드하세요.")
