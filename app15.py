@@ -4,33 +4,33 @@ import streamlit as st
 st.set_page_config(layout="wide")
 
 # 제목 설정
-st.title("Video Object Detection App")
+st.title("비디오 사물 검출 앱")
 
 # 전체 레이아웃을 컨테이너로 감싸기
 with st.container():
     col1, col2 = st.columns(2)  # 열을 균등하게 분배하여 넓게 표시
 
     # 파일 업로드
-    uploaded_file = st.file_uploader("Upload a video file", type=["mp4", "mov", "avi"])
+    uploaded_file = st.file_uploader("비디오 파일을 업로드하세요", type=["mp4", "mov", "avi"])
 
     with col1:
-        st.header("Original Video")
+        st.header("원본 영상")
         if uploaded_file is not None:
             st.video(uploaded_file)
         else:
-            st.write("Please upload a video file to display.")
+            st.write("원본 영상을 표시하려면 비디오 파일을 업로드하세요.")
 
     with col2:
-        st.header("Object Detection Result Video")
+        st.header("사물 검출 결과 영상")
         if "processed_video" in st.session_state:
             st.video(st.session_state["processed_video"])
         else:
-            st.write("Object detection result will be displayed here.")
+            st.write("여기에 사물 검출 결과가 표시됩니다.")
 
 # 사물 검출 버튼 추가
-if st.button("Run Object Detection"):
+if st.button("사물 검출 실행"):
     if uploaded_file is not None:
         st.session_state["processed_video"] = uploaded_file
-        st.success("Object detection completed and displayed on the right.")
+        st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
     else:
-        st.warning("Please upload a video file before running object detection.")
+        st.warning("사물 검출을 실행하려면 비디오 파일을 업로드하세요.")
