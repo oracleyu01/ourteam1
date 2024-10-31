@@ -1,114 +1,93 @@
 import streamlit as st
 from ultralytics import YOLO
 import tempfile
-import cv2
-import time
-import ffmpeg
+import subprocess
 import os
+import cv2
 
-# 페이지 레이아웃 설정
+# 페이지 설정
 st.set_page_config(layout="wide")
 st.title("비디오 사물 검출 앱")
 
-# 모델 업로드
-model_file = st.file_uploader("모델 파일을 업로드하세요", type=["pt"])
-if model_file:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pt") as temp_model_file:
-        temp_model_file.write(model_file.read())
-        model_path = temp_model_file.name
-    model = YOLO(model_path)
+# 모델 로드
+model_path = st.file_uploader("모델 파일을 업로드하세요", type=["pt"])
+if model_path:
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_model:
+        tmp_model.write(model_path.read())
+        model = YOLO(tmp_model.name)
     st.success("모델이 성공적으로 로드되었습니다.")
 
-# 비디오 파일 업로드
-uploaded_file = st.file_uploader("비디오 파일을 업로드하세요", type=["mp4", "mov", "avi"])
+# 비디오 업로드
+uploaded_video = st.file_uploader("비디오 파일을 업로드하세요", type=["mp4", "mov", "avi"])
 
-with st.container():
-    col1, col2 = st.columns(2)
+# 검출 결과 비디오 플레이스홀더
+result_placeholder = st.empty()
 
-    # 원본 비디오 섹션
-    with col1:
-        st.header("원본 영상")
-        if uploaded_file:
-            st.video(uploaded_file)
-        else:
-            st.write("원본 영상을 표시하려면 비디오 파일을 업로드하세요.")
+# 임시 파일 경로
+output_path = ""
+reencoded_output_path = ""
 
-    # 결과 비디오 섹션
-    with col2:
-        st.header("사물 검출 결과 영상")
-        result_placeholder = st.empty()
-        if "uploaded_detected_video" in st.session_state:
-            result_placeholder.video(st.session_state["uploaded_detected_video"])
-        else:
-            result_placeholder.markdown(
-                """
-                <div style='width:100%; height:620px; background-color:#d3d3d3; display:flex; align-items:center; justify-content:center; border-radius:5px;'>
-                    <p style='color:#888;'>여기에 사물 검출 결과가 표시됩니다.</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+# 사물 검출 실행 버튼
+if st.button("사물 검출 실행"):
+    if uploaded_video and model:
+        # 비디오 임시 저장
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_video:
+            tmp_video.write(uploaded_video.read())
+            input_video_path = tmp_video.name
+        
+        # 결과 비디오 임시 저장 경로
+        output_path = input_video_path.replace(".mp4", "_detected.mp4")
 
-# 사물 검출 실행
-if st.button("사물 검출 실행") and uploaded_file and model_file:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_output:
-        output_path = temp_output.name
+        # OpenCV를 사용하여 비디오 처리 및 YOLO 모델 적용
+        cap = cv2.VideoCapture(input_video_path)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = None
+        
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
 
-    with tempfile.NamedTemporaryFile(delete=False) as temp_input:
-        temp_input.write(uploaded_file.read())
-        temp_input_path = temp_input.name
+        out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
 
-    # 비디오 처리
-    cap = cv2.VideoCapture(temp_input_path)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+            # YOLO 모델 예측 수행
+            results = model(frame)
+            for result in results:
+                for box in result.boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    confidence = box.conf[0]
+                    label = f"{box.label} {confidence:.2f}"
+                    frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    frame = cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-        # 모델을 사용한 예측 수행
-        results = model(frame)
-        detections = results[0].boxes if len(results) > 0 else []
+            # 처리된 프레임을 결과 비디오에 작성
+            out.write(frame)
 
-        for box in detections:
-            x1, y1, x2, y2 = map(int, box.xyxy[0])
-            confidence = box.conf[0]
-            class_id = int(box.cls[0])
-            class_name = model.names[class_id]
-            label = f"{class_name} {confidence:.2f}"
+        cap.release()
+        out.release()
+        
+        # 결과 비디오를 재인코딩하여 Streamlit 호환성 확보
+        reencoded_output_path = output_path.replace(".mp4", "_reencoded.mp4")
+        subprocess.run(
+            ["ffmpeg", "-i", output_path, "-vcodec", "libx264", "-acodec", "aac", reencoded_output_path],
+            check=True
+        )
+        
+        st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
+    else:
+        st.warning("비디오 파일과 모델 파일을 모두 업로드하세요.")
 
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-        out.write(frame)
-
-    cap.release()
-    out.release()
-    time.sleep(1)
-
-    # 비디오 재인코딩
-    reencoded_output_path = output_path.replace(".mp4", "_reencoded.mp4")
-    ffmpeg.input(output_path).output(reencoded_output_path, vcodec='libx264', acodec='aac').run(overwrite_output=True)
-
-    # 결과 비디오 다운로드
-    with open(reencoded_output_path, "rb") as file:
+# 결과 비디오 다운로드 및 재생
+if os.path.exists(reencoded_output_path):
+    with open(reencoded_output_path, "rb") as f:
         st.download_button(
-            label="결과 영상 다운로드",
-            data=file,
+            label="결과 비디오 다운로드",
+            data=f,
             file_name="detected_video.mp4",
             mime="video/mp4"
         )
-
-    st.success("사물 검출이 완료되었습니다. 결과 영상을 다운로드한 후 다시 업로드해보세요.")
-
-# 결과 비디오 업로드 및 재생
-uploaded_detected_video = st.file_uploader("결과 영상을 다시 업로드하세요", type=["mp4"])
-if uploaded_detected_video:
-    st.session_state["uploaded_detected_video"] = uploaded_detected_video
-    with col2:
-        result_placeholder.video(uploaded_detected_video)
+    result_placeholder.video(reencoded_output_path)
