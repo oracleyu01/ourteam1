@@ -3,7 +3,6 @@ from ultralytics import YOLO
 import tempfile
 import cv2
 import os
-import time
 
 # 페이지 레이아웃 설정
 st.set_page_config(layout="wide")
@@ -73,11 +72,7 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     cap.release()
     out.release()
 
-    # 결과 영상 표시
-    st.header("사물 검출 결과 영상")
-    st.video(output_path)
-
-    # 다운로드 버튼
+    # 결과 영상 다운로드 버튼 제공
     with open(output_path, "rb") as file:
         st.download_button(
             label="결과 영상 다운로드",
@@ -85,3 +80,9 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
             file_name="detected_video.mp4",
             mime="video/mp4"
         )
+
+# 결과 영상 재생을 위해 업로드
+uploaded_result = st.file_uploader("결과 영상을 업로드하세요", type=["mp4"])
+if uploaded_result is not None:
+    st.header("사물 검출 결과 영상")
+    st.video(uploaded_result)
