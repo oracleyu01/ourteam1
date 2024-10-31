@@ -26,6 +26,7 @@ with st.container(): # with 절로 하나의 기능을 하는 코드를 묶어�
 
     with col2:    
         st.header("사물 검출 결과 영상")  # col2 에 해당하는 영역의 제목
+        result_placeholder = st.empty()  # 빈 영역 확보
         if "processed_video" in st.session_state: # 사물검출 완료된 비디오가 있으면
             st.video(st.session_state["processed_video"]) # 그 비디오를 플레이해라
         else: 
