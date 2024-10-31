@@ -2,7 +2,7 @@ import streamlit as st
 from ultralytics import YOLO
 import tempfile
 import cv2
-import subprocess
+from moviepy.editor import VideoFileClip
 import os
 
 # 페이지 레이아웃 설정
@@ -73,20 +73,13 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     cap.release()
     out.release()
 
-    # 재인코딩된 비디오 파일 경로 설정
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_reencoded:
-        reencoded_path = temp_reencoded.name
-
-    # FFmpeg 명령어 실행하여 재인코딩
-    command = [
-        "ffmpeg", "-i", output_path, 
-        "-c:v", "libx264", "-crf", "23", "-preset", "fast", 
-        "-c:a", "aac", "-b:a", "128k", reencoded_path
-    ]
-    subprocess.run(command)
+    # moviepy를 사용해 재인코딩 수행
+    st.header("재인코딩된 결과 영상")
+    reencoded_path = output_path.replace(".mp4", "_reencoded.mp4")
+    clip = VideoFileClip(output_path)
+    clip.write_videofile(reencoded_path, codec="libx264", audio_codec="aac")
 
     # 재인코딩된 비디오 다운로드 버튼 제공
-    st.header("재인코딩된 결과 영상")
     with open(reencoded_path, "rb") as file:
         st.download_button(
             label="재인코딩된 결과 영상 다운로드",
