@@ -2,13 +2,14 @@ import streamlit as st
 from ultralytics import YOLO
 import tempfile
 import cv2
+import subprocess
 import os
 
 # 페이지 레이아웃 설정
 st.set_page_config(layout="wide")
 
 # 제목
-st.title("비디오 사물 검출 앱")
+st.title("비디오 사물 검출 및 재인코딩 앱")
 
 # 모델 파일 업로드
 model_file = st.file_uploader("모델 파일을 업로드하세요", type=["pt"])
@@ -72,12 +73,25 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
     cap.release()
     out.release()
 
-    # 결과 영상 다운로드 버튼 제공
-    with open(output_path, "rb") as file:
+    # 재인코딩된 비디오 파일 경로 설정
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_reencoded:
+        reencoded_path = temp_reencoded.name
+
+    # FFmpeg 명령어 실행하여 재인코딩
+    command = [
+        "ffmpeg", "-i", output_path, 
+        "-c:v", "libx264", "-crf", "23", "-preset", "fast", 
+        "-c:a", "aac", "-b:a", "128k", reencoded_path
+    ]
+    subprocess.run(command)
+
+    # 재인코딩된 비디오 다운로드 버튼 제공
+    st.header("재인코딩된 결과 영상")
+    with open(reencoded_path, "rb") as file:
         st.download_button(
-            label="결과 영상 다운로드",
+            label="재인코딩된 결과 영상 다운로드",
             data=file,
-            file_name="detected_video.mp4",
+            file_name="reencoded_video.mp4",
             mime="video/mp4"
         )
 
