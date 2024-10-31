@@ -3,16 +3,14 @@ from ultralytics import YOLO
 import tempfile
 import cv2
 import time
-import os
 import ffmpeg
+import os
 
 # 페이지 레이아웃 설정
 st.set_page_config(layout="wide")
-
-# 제목
 st.title("비디오 사물 검출 앱")
 
-# 모델 파일 업로드
+# 모델 업로드
 model_file = st.file_uploader("모델 파일을 업로드하세요", type=["pt"])
 if model_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pt") as temp_model_file:
@@ -24,17 +22,18 @@ if model_file:
 # 비디오 파일 업로드
 uploaded_file = st.file_uploader("비디오 파일을 업로드하세요", type=["mp4", "mov", "avi"])
 
-# 레이아웃 설정
 with st.container():
     col1, col2 = st.columns(2)
 
+    # 원본 비디오 섹션
     with col1:
         st.header("원본 영상")
-        if uploaded_file is not None:
+        if uploaded_file:
             st.video(uploaded_file)
         else:
             st.write("원본 영상을 표시하려면 비디오 파일을 업로드하세요.")
 
+    # 결과 비디오 섹션
     with col2:
         st.header("사물 검출 결과 영상")
         result_placeholder = st.empty()
@@ -50,7 +49,7 @@ with st.container():
                 unsafe_allow_html=True,
             )
 
-# 사물 검출 버튼 클릭 이벤트 처리
+# 사물 검출 실행
 if st.button("사물 검출 실행") and uploaded_file and model_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_output:
         output_path = temp_output.name
@@ -59,8 +58,9 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         temp_input.write(uploaded_file.read())
         temp_input_path = temp_input.name
 
+    # 비디오 처리
     cap = cv2.VideoCapture(temp_input_path)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # .mp4 형식을 위한 fourcc 설정
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -71,34 +71,31 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         if not ret:
             break
 
-        # YOLO 모델로 예측 수행
+        # 모델을 사용한 예측 수행
         results = model(frame)
         detections = results[0].boxes if len(results) > 0 else []
 
-        if len(detections) > 0:
-            for box in detections:
-                x1, y1, x2, y2 = map(int, box.xyxy[0])
-                confidence = box.conf[0]
-                class_id = int(box.cls[0])
-                class_name = model.names[class_id]
-                label = f"{class_name} {confidence:.2f}"
+        for box in detections:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            confidence = box.conf[0]
+            class_id = int(box.cls[0])
+            class_name = model.names[class_id]
+            label = f"{class_name} {confidence:.2f}"
 
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         out.write(frame)
 
     cap.release()
     out.release()
-
-    # 저장 후 대기 시간
     time.sleep(1)
 
-    # 비디오를 다시 인코딩하여 호환성 높이기
+    # 비디오 재인코딩
     reencoded_output_path = output_path.replace(".mp4", "_reencoded.mp4")
     ffmpeg.input(output_path).output(reencoded_output_path, vcodec='libx264', acodec='aac').run(overwrite_output=True)
 
-    # 결과 비디오 다운로드 버튼
+    # 결과 비디오 다운로드
     with open(reencoded_output_path, "rb") as file:
         st.download_button(
             label="결과 영상 다운로드",
@@ -106,10 +103,12 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
             file_name="detected_video.mp4",
             mime="video/mp4"
         )
+
     st.success("사물 검출이 완료되었습니다. 결과 영상을 다운로드한 후 다시 업로드해보세요.")
 
-# 결과 비디오 다시 업로드하여 재생
+# 결과 비디오 업로드 및 재생
 uploaded_detected_video = st.file_uploader("결과 영상을 다시 업로드하세요", type=["mp4"])
 if uploaded_detected_video:
     st.session_state["uploaded_detected_video"] = uploaded_detected_video
-    st.video(uploaded_detected_video)
+    with col2:
+        result_placeholder.video(uploaded_detected_video)
