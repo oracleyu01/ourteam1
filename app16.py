@@ -93,22 +93,25 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
 
         out.write(frame)
 
+    # 비디오 객체 해제
     cap.release()
     out.release()
 
-    # 저장 후 대기 시간
+    # 파일이 완전히 생성되었는지 확인 후 지연 시간 추가
     time.sleep(1)
+    if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+        # 결과 비디오를 세션 상태에 저장하여 표시
+        st.session_state["processed_video"] = output_path
+        result_placeholder.video(output_path)
+        st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
 
-    # 결과 비디오를 세션 상태에 저장
-    st.session_state["processed_video"] = output_path
-    result_placeholder.video(output_path)
-    st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
-
-    # 다운로드 링크 제공
-    with open(output_path, "rb") as file:
-        st.download_button(
-            label="결과 영상 다운로드",
-            data=file,
-            file_name="detected_video.mp4",  # 확장자 .mp4로 변경
-            mime="video/mp4"  # MIME 타입을 mp4로 설정
-        )
+        # 다운로드 링크 제공
+        with open(output_path, "rb") as file:
+            st.download_button(
+                label="결과 영상 다운로드",
+                data=file,
+                file_name="detected_video.mp4",
+                mime="video/mp4"
+            )
+    else:
+        st.error("비디오 생성에 실패했습니다. 다시 시도해주세요.")
