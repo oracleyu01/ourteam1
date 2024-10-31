@@ -2,8 +2,8 @@ import streamlit as st
 from ultralytics import YOLO
 import tempfile
 import cv2
-import time
 import os
+import time
 
 # 페이지 레이아웃 설정
 st.set_page_config(layout="wide")
@@ -23,9 +23,6 @@ if model_file:
 # 비디오 파일 업로드
 uploaded_file = st.file_uploader("비디오 파일을 업로드하세요", type=["mp4", "mov", "avi"])
 
-# 결과 비디오 파일 업로드
-uploaded_result_video = st.file_uploader("결과 동영상을 업로드하세요", type=["mp4", "avi"])
-
 # 레이아웃 설정
 with st.container():
     col1, col2 = st.columns(2)
@@ -40,10 +37,7 @@ with st.container():
     with col2:
         st.header("사물 검출 결과 영상")
         result_placeholder = st.empty()
-        if uploaded_result_video is not None:
-            # 업로드된 결과 비디오를 재생
-            result_placeholder.video(uploaded_result_video)
-        elif "processed_video" in st.session_state and st.session_state["processed_video"] is not None:
+        if "processed_video" in st.session_state and st.session_state["processed_video"] is not None:
             result_placeholder.video(st.session_state["processed_video"])
         else:
             result_placeholder.markdown(
@@ -65,7 +59,7 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
         temp_input_path = temp_input.name
 
     cap = cv2.VideoCapture(temp_input_path)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # mp4 코덱으로 변경
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -93,25 +87,25 @@ if st.button("사물 검출 실행") and uploaded_file and model_file:
 
         out.write(frame)
 
-    # 비디오 객체 해제
     cap.release()
     out.release()
 
-    # 파일이 완전히 생성되었는지 확인 후 지연 시간 추가
-    time.sleep(1)
-    if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-        # 결과 비디오를 세션 상태에 저장하여 표시
-        st.session_state["processed_video"] = output_path
-        result_placeholder.video(output_path)
-        st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
+    # 파일 생성 완료 확인 및 지연 시간 추가
+    for _ in range(5):
+        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+            break
+        time.sleep(1)  # 파일이 생성될 때까지 대기
 
-        # 다운로드 링크 제공
-        with open(output_path, "rb") as file:
-            st.download_button(
-                label="결과 영상 다운로드",
-                data=file,
-                file_name="detected_video.mp4",
-                mime="video/mp4"
-            )
-    else:
-        st.error("비디오 생성에 실패했습니다. 다시 시도해주세요.")
+    # 결과 비디오를 세션 상태에 저장하여 표시
+    st.session_state["processed_video"] = output_path
+    result_placeholder.video(output_path)
+    st.success("사물 검출이 완료되어 오른쪽에 표시됩니다.")
+
+    # 다운로드 링크 제공
+    with open(output_path, "rb") as file:
+        st.download_button(
+            label="결과 영상 다운로드",
+            data=file,
+            file_name="detected_video.mp4",
+            mime="video/mp4"
+        )
