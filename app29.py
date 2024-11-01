@@ -3,12 +3,11 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from gtts import gTTS
-from io import BytesIO
 import base64
 import tempfile
 import uuid
 
-# 기본 임베딩 모델 로드
+# 임베딩 모델 로드
 encoder = SentenceTransformer('jhgan/ko-sroberta-multitask')
 
 # 질문과 답변 데이터 설정
@@ -75,7 +74,7 @@ def get_response(user_input):
         st.markdown(audio_html, unsafe_allow_html=True)
 
 # 페이지 설정
-st.set_page_config(page_title="Streamly Chatbot", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Streamly Restaurant Chatbot", page_icon="🤖", layout="wide")
 
 # 메인 챗봇 인터페이스
 st.title("Streamly Restaurant Chatbot")
