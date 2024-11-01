@@ -62,6 +62,7 @@ def get_response(user_input):
             <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
         </audio>
     """
+    # 자동 재생 오디오 HTML 삽입
     st.markdown(audio_html, unsafe_allow_html=True)
 
 # 페이지 설정
