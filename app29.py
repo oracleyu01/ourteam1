@@ -5,6 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from gtts import gTTS
 from io import BytesIO
 import base64
+import uuid  # Unique ID를 생성하기 위해 사용
 
 # 기본 임베딩 모델 로드
 encoder = SentenceTransformer('jhgan/ko-sroberta-multitask')
@@ -57,12 +58,16 @@ def get_response(user_input):
     
     # 오디오 자동 재생을 위해 base64로 변환
     audio_base64 = base64.b64encode(audio_bytes.read()).decode()
+    
+    # 고유 ID 생성
+    unique_id = str(uuid.uuid4())
+    
+    # HTML 자동 재생 오디오 생성
     audio_html = f"""
-        <audio autoplay>
+        <audio id="{unique_id}" autoplay>
             <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
         </audio>
     """
-    # 자동 재생 오디오 HTML 삽입
     st.markdown(audio_html, unsafe_allow_html=True)
 
 # 페이지 설정
