@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from gtts import gTTS
 from io import BytesIO
+import base64
 import tempfile
 
 # 기본 임베딩 모델 로드
@@ -55,7 +56,17 @@ def get_response(user_input):
     # 임시 파일에 오디오 저장
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
         tts.save(fp.name)
-        st.audio(fp.name, format="audio/mp3")  # 오디오 재생
+        audio_file_path = fp.name
+    
+    # 오디오 파일을 base64로 인코딩하여 HTML 자동 재생 삽입
+    with open(audio_file_path, "rb") as audio_file:
+        audio_base64 = base64.b64encode(audio_file.read()).decode()
+        audio_html = f"""
+            <audio autoplay>
+                <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+            </audio>
+        """
+        st.markdown(audio_html, unsafe_allow_html=True)
 
 # 페이지 설정
 st.set_page_config(page_title="Streamly Chatbot", page_icon="🤖", layout="wide")
