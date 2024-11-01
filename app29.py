@@ -76,7 +76,7 @@ st.write("식당에 대해 궁금한 점을 물어보세요! 예: '영업시간�
 user_input = st.text_input("Type your question here...", "")
 
 # 질문에 대해 바로 소리로 답변
-if user_input:
+if st.button("Ask") and user_input:
     get_response(user_input)
     user_input = ""  # 입력 초기화
 
