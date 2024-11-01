@@ -4,8 +4,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from gtts import gTTS
 from io import BytesIO
-import base64
-import uuid  # Unique ID를 생성하기 위해 사용
+import tempfile
 
 # 기본 임베딩 모델 로드
 encoder = SentenceTransformer('jhgan/ko-sroberta-multitask')
@@ -52,23 +51,11 @@ def get_response(user_input):
 
     # gTTS를 사용하여 음성 생성
     tts = gTTS(text=answer['챗봇'], lang='ko')
-    audio_bytes = BytesIO()
-    tts.write_to_fp(audio_bytes)
-    audio_bytes.seek(0)
     
-    # 오디오 자동 재생을 위해 base64로 변환
-    audio_base64 = base64.b64encode(audio_bytes.read()).decode()
-    
-    # 고유 ID 생성
-    unique_id = str(uuid.uuid4())
-    
-    # HTML 자동 재생 오디오 생성
-    audio_html = f"""
-        <audio id="{unique_id}" autoplay>
-            <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
-        </audio>
-    """
-    st.markdown(audio_html, unsafe_allow_html=True)
+    # 임시 파일에 오디오 저장
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
+        tts.save(fp.name)
+        st.audio(fp.name, format="audio/mp3")  # 오디오 재생
 
 # 페이지 설정
 st.set_page_config(page_title="Streamly Chatbot", page_icon="🤖", layout="wide")
