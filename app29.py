@@ -4,11 +4,12 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from gtts import gTTS
 from io import BytesIO
+import base64
 
 # 기본 임베딩 모델 로드
 encoder = SentenceTransformer('jhgan/ko-sroberta-multitask')
 
-# 질문과 답변 데이터 설정 (페이스북 심리상담 데이터로 교체 필요)
+# 질문과 답변 데이터 설정
 questions = [
     "영업시간이 어떻게 되나요?",
     "가격이 어떻게 되나요?",
@@ -54,8 +55,14 @@ def get_response(user_input):
     tts.write_to_fp(audio_bytes)
     audio_bytes.seek(0)
     
-    # Streamlit에서 오디오 재생
-    st.audio(audio_bytes, format="audio/mp3")
+    # 오디오 자동 재생을 위해 base64로 변환
+    audio_base64 = base64.b64encode(audio_bytes.read()).decode()
+    audio_html = f"""
+        <audio autoplay>
+            <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+        </audio>
+    """
+    st.markdown(audio_html, unsafe_allow_html=True)
 
 # 페이지 설정
 st.set_page_config(page_title="Streamly Chatbot", page_icon="🤖", layout="wide")
