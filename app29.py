@@ -6,6 +6,7 @@ from gtts import gTTS
 from io import BytesIO
 import base64
 import tempfile
+import uuid
 
 # 기본 임베딩 모델 로드
 encoder = SentenceTransformer('jhgan/ko-sroberta-multitask')
@@ -61,10 +62,15 @@ def get_response(user_input):
     # 오디오 파일을 base64로 인코딩하여 HTML 자동 재생 삽입
     with open(audio_file_path, "rb") as audio_file:
         audio_base64 = base64.b64encode(audio_file.read()).decode()
+        unique_id = str(uuid.uuid4())  # 고유 ID 생성
         audio_html = f"""
-            <audio autoplay>
+            <audio id="{unique_id}" autoplay>
                 <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
             </audio>
+            <script>
+                var audio = document.getElementById("{unique_id}");
+                audio.play();
+            </script>
         """
         st.markdown(audio_html, unsafe_allow_html=True)
 
