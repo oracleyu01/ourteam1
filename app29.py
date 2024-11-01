@@ -7,7 +7,7 @@ import base64
 import tempfile
 import uuid
 
-# 임베딩 모델 로드
+# 기본 임베딩 모델 로드
 encoder = SentenceTransformer('jhgan/ko-sroberta-multitask')
 
 # 질문과 답변 데이터 설정
@@ -38,8 +38,8 @@ df = pd.DataFrame({'question': questions, '챗봇': answers, 'embedding': list(q
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# 챗봇 응답 함수
-def get_response(user_input):
+# 챗봇 응답 및 오디오 재생 함수
+def get_response_and_play_audio(user_input):
     # 사용자 입력 임베딩
     embedding = encoder.encode(user_input)
     
@@ -86,7 +86,7 @@ user_input = st.text_input("Type your question here...", "")
 
 # 질문에 대해 바로 소리로 답변
 if st.button("Ask") and user_input:
-    get_response(user_input)
+    get_response_and_play_audio(user_input)
     user_input = ""  # 입력 초기화
 
 # 대화 이력 표시
