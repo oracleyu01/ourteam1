@@ -6,3 +6,6 @@ ultralytics
 ffmpeg-python
 ffmpeg
 moviepy
+gtts
+io
+
