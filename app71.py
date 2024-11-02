@@ -2,16 +2,16 @@ import streamlit as st
 import subprocess
 import sys
 import tempfile
+import os
 from ultralytics import YOLO
 from moviepy.editor import VideoFileClip
-import os
 
 # 시스템 패키지 설치 시도 (libGL 관련 오류 해결)
 try:
     import cv2
 except ImportError:
     st.write("필수 시스템 라이브러리를 설치하는 중입니다...")
-    # 필요한 시스템 패키지 설치
+    # 시스템 패키지 업데이트 및 libGL 설치
     subprocess.run(["apt-get", "update"])
     subprocess.run(["apt-get", "install", "-y", "libgl1-mesa-glx"])
     # OpenCV 헤드리스 버전 설치
