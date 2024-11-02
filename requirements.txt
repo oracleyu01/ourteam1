@@ -1,8 +1,8 @@
-opencv-python-headless
-ultralytics<=8.0.10  # Python 3.11 이하 버전과 호환되는 버전으로 제한
-pandas
 streamlit
+ultralytics<=8.0.10  # Python 3.11 이하 버전과 호환되는 버전으로 제한
+opencv-python-headless
 ffmpeg-python
 moviepy
 gtts
 sentence_transformers
+pandas
